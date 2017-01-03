@@ -4,31 +4,37 @@ platform:
   - x86
   - x64
 configuration:
-  - Debug
   - Release
+environment:
+  PROJECT: jsoncpp
+  CMAKE_PROJECT: jsoncpp
 
 install:
-  - ps: Start-FileDownload https://github.com/open-source-parsers/jsoncpp/archive/1.8.0.zip jsoncpp-1.8.0.zip
-  - 7z x -bd -oC:\projects jsoncpp-1.8.0.zip
-  - move C:\projects\jsoncpp-1.8.0 %APPVEYOR_BUILD_FOLDER%
+  - ps: |
+      Start-FileDownload https://github.com/open-source-parsers/jsoncpp/archive/1.8.0.zip jsoncpp-1.8.0.zip
+      7z x -bd -oC:\projects jsoncpp-1.8.0.zip
+      move C:\projects\jsoncpp-1.8.0 "C:\projects\${env:PROJECT}"
 
 before_build: 
-  - cd %APPVEYOR_BUILD_FOLDER%
-  - md build
-  - cd build
-  - if %PLATFORM% == x86 set GENERATOR="Visual Studio 14 2015"
-  - if %PLATFORM% == x64 set GENERATOR="Visual Studio 14 2015 Win64"
-  - cmake -G "%GENERATOR%" -DCMAKE_INSTALL_PREFIX=%APPVEYOR_BUILD_FOLDER%\build\install\%APPVEYOR_PROJECT_NAME% ..
+  - ps: |
+      ${env:BUILD_DIRECTORY}="${env:APPVEYOR_BUILD_FOLDER}\build"
+      ${env:INSTALL_DIRECTORY}="${env:APPVEYOR_BUILD_FOLDER}\${env:PROJECT}"
+      New-Item -Path "${env:BUILD_DIRECTORY}" -ItemType "directory"
+      cd "${env:BUILD_DIRECTORY}"
+      ${generator} = "Visual Studio 14 2015"
+      if (${env:PLATFORM} -eq "x64") { ${generator} = "${generator} Win64" }
+      cmake -G "${generator}" -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" "C:\projects\${env:PROJECT}"
 
 build_script:
-  - msbuild %APPVEYOR_BUILD_FOLDER%\build\jsoncpp.sln /m /v:minimal
-  - msbuild %APPVEYOR_BUILD_FOLDER%\build\INSTALL.vcxproj /m /v:minimal
+  - ps: |
+      msbuild "${env:BUILD_DIRECTORY}\${CMAKE_PROJECT}.sln" /m /v:minimal
+      msbuild "${env:BUILD_DIRECTORY}\INSTALL.vcxproj" /m /v:minimal
 
 after_build:
-  - cd %APPVEYOR_BUILD_FOLDER%\build\install
-  - 7z a package.zip %APPVEYOR_PROJECT_NAME%
-  - move package.zip %APPVEYOR_BUILD_FOLDER%
+  - ps: |
+      cd "${env:APPVEYOR_BUILD_FOLDER}"
+      7z a "${env:PROJECT}_${env:PLATFORM}.zip" "${env:PROJECT}"
 
 artifacts:
-  - path: package.zip
+  - path: $(PROJECT)_$(platform).zip
 
