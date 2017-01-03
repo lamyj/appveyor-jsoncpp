@@ -26,11 +26,9 @@ build_script:
 
 after_build:
   - cd %APPVEYOR_BUILD_FOLDER%\build\install
-  - 7z a %APPVEYOR_PROJECT_NAME%.zip %APPVEYOR_PROJECT_NAME%
-  - move %APPVEYOR_PROJECT_NAME%.zip %APPVEYOR_BUILD_FOLDER%
+  - 7z a package.zip %APPVEYOR_PROJECT_NAME%
+  - move package.zip %APPVEYOR_BUILD_FOLDER%
 
 artifacts:
-  - path: %APPVEYOR_PROJECT_NAME%.zip
+  - path: package.zip
 
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
