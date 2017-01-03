@@ -1,0 +1,34 @@
+version: '{build}'
+image: Visual Studio 2015
+platform:
+  - x86
+  - x64
+configuration:
+  - Debug
+  - Release
+
+install:
+  - ps: Start-FileDownload https://github.com/open-source-parsers/jsoncpp/archive/1.8.0.zip jsoncpp-1.8.0.zip
+  - 7z x -bd -oC:\projects jsoncpp-1.8.0.zip
+  - move C:\projects\jsoncpp-1.8.0 C:\projects\jsoncpp
+
+before_build: 
+  - cd c:\projects\jsoncpp
+  - md build
+  - cd build
+  - if %PLATFORM% == x86 set GENERATOR="Visual Studio 14 2015"
+  - if %PLATFORM% == x64 set GENERATOR="Visual Studio 14 2015 Win64"
+  - cmake -G "%GENERATOR%" -DCMAKE_INSTALL_PREFIX=c:\projects\jsoncpp\build\install\jsoncpp ..
+
+build_script:
+  - msbuild C:\projects\jsoncpp\build\jsoncpp.sln
+  - msbuild C:\projects\jsoncpp\build\INSTALL.vcxproj
+
+after_build:
+  - cd C:\projects\jsoncpp\build\install
+  - 7z a jsoncpp.zip jsoncpp
+  - move jsoncpp.zip C:\projects\appveyor-sandbox
+
+artifacts:
+  - path: jsoncpp.zip
+
