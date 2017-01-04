@@ -8,6 +8,7 @@ configuration:
 environment:
   PROJECT: jsoncpp
   CMAKE_PROJECT: jsoncpp
+  VERSION: 1.8.0-1
 
 install:
   - ps: |
@@ -33,8 +34,19 @@ build_script:
 after_build:
   - ps: |
       cd "${env:APPVEYOR_BUILD_FOLDER}"
-      7z a "${env:PROJECT}_${env:PLATFORM}.zip" "${env:PROJECT}"
+      7z a "${env:PROJECT}_${env:VERSION}_${env:PLATFORM}.zip" "${env:PROJECT}"
 
 artifacts:
-  - path: $(PROJECT)_$(platform).zip
+  - path: $(PROJECT)_$(VERSION)_$(platform).zip
+
+deploy:
+  release: $(PROJECT)-$(VERSION)
+  description: "$(VERSION)"
+  provider: GitHub
+  auth_token:
+    secure: Stag2HnDJZFOF5/29yUlXQNlShCTIbAaAH/JLNnO7pb1AUIPGSnNJI4BykbCxVp2
+  artifact: /.*\.zip/
+  on:
+    branch: master
+    appveyor_repo_tag: true
 
