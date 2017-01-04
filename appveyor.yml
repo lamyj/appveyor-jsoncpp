@@ -40,8 +40,8 @@ artifacts:
   - path: $(PROJECT)_$(VERSION)_$(platform).zip
 
 deploy:
-  release: $(PROJECT)-$(VERSION)
-  description: "$(VERSION)"
+  release: v$(VERSION)
+  description: "v$(VERSION)"
   provider: GitHub
   auth_token:
     secure: Stag2HnDJZFOF5/29yUlXQNlShCTIbAaAH/JLNnO7pb1AUIPGSnNJI4BykbCxVp2
