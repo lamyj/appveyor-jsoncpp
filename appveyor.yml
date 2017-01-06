@@ -9,6 +9,9 @@ environment:
   PROJECT: jsoncpp
   CMAKE_PROJECT: jsoncpp
   VERSION: 1.8.0-1
+  matrix:
+    - LIBRARY_TYPE: static
+    - LIBRARY_TYPE: dynamic
 
 install:
   - ps: |
@@ -22,9 +25,22 @@ before_build:
       ${env:INSTALL_DIRECTORY}="${env:APPVEYOR_BUILD_FOLDER}\${env:PROJECT}"
       New-Item -Path "${env:BUILD_DIRECTORY}" -ItemType "directory"
       cd "${env:BUILD_DIRECTORY}"
+      
       ${generator} = "Visual Studio 14 2015"
-      if (${env:PLATFORM} -eq "x64") { ${generator} = "${generator} Win64" }
-      cmake -G "${generator}" -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" "C:\projects\${env:PROJECT}"
+      if(${env:PLATFORM} -eq "x64") { ${generator} = "${generator} Win64" }
+      
+      if(${env:LIBRARY_TYPE} -eq "static") { 
+        ${library_flags} = "-DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF"
+      }
+      elseif(${env:LIBRARY_TYPE} -eq "dynamic") {
+        ${library_flags} = "-DBUILD_STATIC_LIBS=OFF -DBUILD_SHARED_LIBS=ON"
+      }
+      
+      cmake `
+        -G "${generator}" `
+        -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" `
+        "${library_flags}" `
+        "C:\projects\${env:PROJECT}"
 
 build_script:
   - ps: |
@@ -34,10 +50,10 @@ build_script:
 after_build:
   - ps: |
       cd "${env:APPVEYOR_BUILD_FOLDER}"
-      7z a "${env:PROJECT}_${env:VERSION}_${env:PLATFORM}.zip" "${env:PROJECT}"
+      7z a "${env:PROJECT}_${env:VERSION}_${env:LIBRARY_TYPE}_${env:PLATFORM}.zip" "${env:PROJECT}"
 
 artifacts:
-  - path: $(PROJECT)_$(VERSION)_$(platform).zip
+  - path: $(PROJECT)_$(VERSION)_$(LIBRARY_TYPE)_$(platform).zip
 
 deploy:
   release: v$(VERSION)
