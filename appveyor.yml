@@ -12,9 +12,6 @@ environment:
   matrix:
     - LIBRARY_TYPE: static
     - LIBRARY_TYPE: dynamic
-changelog:
-  1.8.0-1: Initial release
-  1.8.0-2: Add static and dynamic versions, remove pkgconfig files
 
 install:
   - ps: |
