@@ -30,17 +30,20 @@ before_build:
       if(${env:PLATFORM} -eq "x64") { ${generator} = "${generator} Win64" }
       
       if(${env:LIBRARY_TYPE} -eq "static") { 
-        ${library_flags} = "-DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF"
+        ${build_static_libs} = "ON"
+        ${build_shared_libs} = "OFF"
       }
       elseif(${env:LIBRARY_TYPE} -eq "dynamic") {
-        ${library_flags} = "-DBUILD_STATIC_LIBS=OFF -DBUILD_SHARED_LIBS=ON"
+        ${build_static_libs} = "OFF"
+        ${build_shared_libs} = "ON"
       }
       
       cmake `
         -G "${generator}" `
         -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" `
-        -DJSONCPP_WITH_PKGCONFIG_SUPPORT=OFF ` 
-        ${library_flags} `
+        -DJSONCPP_WITH_PKGCONFIG_SUPPORT=OFF `
+        -DBUILD_STATIC_LIBS="${build_static_libs}" `
+        -DBUILD_SHARED_LIBS="${build_shared_libs}" `
         "C:\projects\${env:PROJECT}"
 
 build_script:
