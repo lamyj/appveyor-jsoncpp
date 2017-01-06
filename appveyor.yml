@@ -39,7 +39,8 @@ before_build:
       cmake `
         -G "${generator}" `
         -DCMAKE_INSTALL_PREFIX="${env:INSTALL_DIRECTORY}" `
-        "${library_flags}" `
+        -DJSONCPP_WITH_PKGCONFIG_SUPPORT=OFF ` 
+        ${library_flags} `
         "C:\projects\${env:PROJECT}"
 
 build_script:
